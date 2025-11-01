@@ -89,7 +89,8 @@ erDiagram
         decimal overtime_hours "연장 근무 시간"
         decimal night_hours "야간 근무 시간"
         decimal holiday_hours "휴일 근무 시간"
-        enum status "STATUS(SCHEDULED, MODIFIED_BEFORE, COMPLETED, MODIFIED_AFTER)"
+        enum status "STATUS(SCHEDULED, COMPLETED)"
+        boolean is_modified "수정 여부"
         string memo "메모"
         datetime created_at
         datetime updated_at
@@ -136,7 +137,7 @@ erDiagram
         bigint id PK
         bigint salary_id FK "Salary ID"
         enum payment_method "METHOD(KAKAO_PAY, BANK_TRANSFER, CASH)"
-        enum status "STATUS(PENDING, COMPLETED, FAILED, HOLD)"
+        enum status "STATUS(PENDING, COMPLETED, FAILED)"
         datetime payment_date "송금 일시"
         string transaction_id "거래 ID"
         string failure_reason "실패 사유"
@@ -208,10 +209,9 @@ erDiagram
 - **total_hours**: 총 근무 시간 (start_time ~ end_time 기준으로 자동 계산)
 - 일반/연장/야간/휴일 근무 시간 자동 계산
 - **STATUS**:
-  - SCHEDULED: 예정 (근무 전 - 고용주가 등록한 초기 상태)
-  - MODIFIED_BEFORE: 수정 (근무 전 - 근무 시작 전에 시간 변경된 상태)
-  - COMPLETED: 완료 (근무 후 - 근무 완료 및 확정된 상태)
-  - MODIFIED_AFTER: 수정 (근무 후 - 근무 완료 후 시간 수정된 상태, 정정 요청 승인 시)
+  - SCHEDULED: 예정 (근무 전)
+  - COMPLETED: 완료 (근무 후)
+- **is_modified**: 수정 여부 (근무 전/후 상관없이 시간 변경 시 true)
 
 ### 7. CorrectionRequest (정정 요청)
 - 근로자가 근무 기록 수정을 요청
@@ -229,7 +229,7 @@ erDiagram
 ### 9. Payment (송금)
 - 급여 송금 내역 및 상태 관리
 - 카카오페이, 계좌이체 등 다양한 방식 지원
-- **HOLD**: 보류 상태 추가 (화면의 "보류" 상태)
+- **상태**: PENDING(대기), COMPLETED(완료), FAILED(실패)
 
 ### 10. Notification (알림)
 - 사용자별 알림 내역
@@ -254,17 +254,17 @@ erDiagram
 ## 화면 설계 반영 사항
 
 ### 고용주 화면 반영
-1. **주간/월간 캘린더**: WorkRecord 엔티티로 구현 (상태별 표시: SCHEDULED/MODIFIED_BEFORE/COMPLETED/MODIFIED_AFTER)
+1. **주간/월간 캘린더**: WorkRecord 엔티티로 구현 (상태별 표시: SCHEDULED/COMPLETED, 수정 여부: is_modified)
 2. **근무지별 색상**: Workplace.color_code 필드 추가
 3. **근무 일정 등록**: 고용주가 WorkRecord를 SCHEDULED 상태로 생성
-4. **근무 일정 수정**: 근무 전 수정 시 MODIFIED_BEFORE, 근무 후 수정 시 MODIFIED_AFTER
+4. **근무 일정 수정**: 시간 수정 시 is_modified를 true로 설정
 5. **월급 관리**: Salary 엔티티의 월별 데이터 조회
 6. **근무 통계**: Salary의 year, month 기반 집계 데이터
 
 ### 근로자 화면 반영
 1. **근무 일정 확인**: WorkRecord 조회 (status별 필터링)
 2. **근무 완료 처리**: 근무 완료 시 COMPLETED 상태로 변경
-3. **수정 요청**: CorrectionRequest 엔티티 (날짜, 시작/종료 시간, 사유), 승인 시 MODIFIED_AFTER 상태로 변경
+3. **수정 요청**: CorrectionRequest 엔티티 (날짜, 시작/종료 시간, 사유), 승인 시 is_modified true로 변경
 4. **월별 급여 통계**: Salary 데이터를 차트로 시각화
 5. **알림 설정**: UserSettings 엔티티로 관리
 
@@ -300,15 +300,15 @@ erDiagram
 - `GET /api/employer/workplaces/{id}/workers` - 근무지별 근로자 조회
 - `GET /api/employer/work-records?workplace_id={id}&year={year}&month={month}` - 캘린더 조회
 - `POST /api/employer/work-records` - 근무 일정 등록 (SCHEDULED 상태로 생성)
-- `PUT /api/employer/work-records/{id}` - 근무 시간 수정 (근무 전: SCHEDULED → MODIFIED_BEFORE, 근무 후: COMPLETED → MODIFIED_AFTER)
-- `PUT /api/employer/work-records/{id}/complete` - 근무 완료 처리 (SCHEDULED/MODIFIED_BEFORE → COMPLETED)
+- `PUT /api/employer/work-records/{id}` - 근무 시간 수정 (is_modified를 true로 설정)
+- `PUT /api/employer/work-records/{id}/complete` - 근무 완료 처리 (SCHEDULED → COMPLETED)
 - `GET /api/employer/salaries?workplace_id={id}&year={year}&month={month}` - 급여 관리
 - `GET /api/employer/correction-requests` - 정정 요청 목록
-- `PUT /api/employer/correction-requests/{id}` - 정정 요청 승인/반려 (승인 시 WorkRecord 상태를 MODIFIED_AFTER로 변경)
+- `PUT /api/employer/correction-requests/{id}` - 정정 요청 승인/반려 (승인 시 is_modified를 true로 설정)
 
 ### 근로자 API
 - `GET /api/worker/work-records?year={year}&month={month}` - 근무 일정 및 기록 조회
-- `PUT /api/worker/work-records/{id}/complete` - 근무 완료 처리 (SCHEDULED/MODIFIED_BEFORE → COMPLETED)
+- `PUT /api/worker/work-records/{id}/complete` - 근무 완료 처리 (SCHEDULED → COMPLETED)
 - `POST /api/worker/correction-requests` - 정정 요청 생성 (근무 완료 후 수정 요청)
 - `GET /api/worker/salaries?year={year}` - 월별 급여 통계
 - `GET /api/worker/payments` - 송금 내역 조회

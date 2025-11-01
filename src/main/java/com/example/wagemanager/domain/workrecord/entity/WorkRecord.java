@@ -63,31 +63,29 @@ public class WorkRecord extends BaseEntity {
     @Builder.Default
     private WorkRecordStatus status = WorkRecordStatus.SCHEDULED;
 
+    @Column(name = "is_modified", nullable = false)
+    @Builder.Default
+    private Boolean isModified = false;
+
     @Column(name = "memo", columnDefinition = "TEXT")
     private String memo;
 
-    // 근무 전 수정
-    public void updateBeforeWork(LocalTime startTime, LocalTime endTime, String memo) {
+    // 근무 시간 수정 (근무 전/후 모두 사용)
+    public void updateWorkTime(LocalTime startTime, LocalTime endTime, String memo) {
         this.startTime = startTime;
         this.endTime = endTime;
         if (memo != null) this.memo = memo;
+        this.isModified = true;
 
-        if (this.status == WorkRecordStatus.SCHEDULED) {
-            this.status = WorkRecordStatus.MODIFIED_BEFORE;
+        // 근무 완료 후 수정이면 시간 재계산
+        if (this.status == WorkRecordStatus.COMPLETED) {
+            calculateHours();
         }
     }
 
     // 근무 완료
     public void complete() {
         this.status = WorkRecordStatus.COMPLETED;
-        calculateHours();
-    }
-
-    // 근무 후 수정 (정정 요청 승인 시)
-    public void updateAfterWork(LocalTime startTime, LocalTime endTime) {
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.status = WorkRecordStatus.MODIFIED_AFTER;
         calculateHours();
     }
 

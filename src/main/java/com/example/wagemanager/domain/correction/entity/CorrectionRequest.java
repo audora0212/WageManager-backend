@@ -65,7 +65,7 @@ public class CorrectionRequest extends BaseEntity {
         this.reviewComment = reviewComment;
 
         // WorkRecord 업데이트
-        this.workRecord.updateAfterWork(this.requestedStartTime, this.requestedEndTime);
+        this.workRecord.updateWorkTime(this.requestedStartTime, this.requestedEndTime, null);
     }
 
     public void reject(User reviewer, String reviewComment) {
