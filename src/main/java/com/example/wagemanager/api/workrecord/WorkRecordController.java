@@ -22,7 +22,7 @@ public class WorkRecordController {
     }
 
     @GetMapping("/{workRecordId}")
-    public ApiResponse<WorkRecordDto.Response> getWorkRecordById(@PathVariable Long workRecordId) {
+    public ApiResponse<WorkRecordDto.DetailedResponse> getWorkRecordById(@PathVariable Long workRecordId) {
         return ApiResponse.success(workRecordService.getWorkRecordById(workRecordId));
     }
 

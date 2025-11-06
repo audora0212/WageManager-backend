@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public class WorkRecordDto {
 
@@ -47,11 +48,94 @@ public class WorkRecordDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class DetailedResponse {
+        private Long id;
+        private Long contractId;
+        private String workerName;
+        private String workerCode;
+        private String workplaceName;
+        private LocalDate workDate;
+        private LocalTime startTime;
+        private LocalTime endTime;
+        private Integer breakMinutes;
+        private Integer totalWorkMinutes;
+        private WorkRecordStatus status;
+        private Boolean isModified;
+        private String memo;
+
+        public static DetailedResponse from(WorkRecord workRecord) {
+            return DetailedResponse.builder()
+                    .id(workRecord.getId())
+                    .contractId(workRecord.getContract().getId())
+                    .workerName(workRecord.getContract().getWorker().getUser().getName())
+                    .workerCode(workRecord.getContract().getWorker().getWorkerCode())
+                    .workplaceName(workRecord.getContract().getWorkplace().getName())
+                    .workDate(workRecord.getWorkDate())
+                    .startTime(workRecord.getStartTime())
+                    .endTime(workRecord.getEndTime())
+                    .breakMinutes(workRecord.getBreakMinutes())
+                    .totalWorkMinutes(workRecord.getTotalWorkMinutes())
+                    .status(workRecord.getStatus())
+                    .isModified(workRecord.getIsModified())
+                    .memo(workRecord.getMemo())
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CalendarResponse {
+        private Long id;
+        private Long contractId;
+        private String workerName;
+        private String workplaceName;
+        private LocalDate workDate;
+        private LocalTime startTime;
+        private LocalTime endTime;
+        private WorkRecordStatus status;
+
+        public static CalendarResponse from(WorkRecord workRecord) {
+            return CalendarResponse.builder()
+                    .id(workRecord.getId())
+                    .contractId(workRecord.getContract().getId())
+                    .workerName(workRecord.getContract().getWorker().getUser().getName())
+                    .workplaceName(workRecord.getContract().getWorkplace().getName())
+                    .workDate(workRecord.getWorkDate())
+                    .startTime(workRecord.getStartTime())
+                    .endTime(workRecord.getEndTime())
+                    .status(workRecord.getStatus())
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class CreateRequest {
         @NotNull
         private Long contractId;
         @NotNull
         private LocalDate workDate;
+        @NotNull
+        private LocalTime startTime;
+        @NotNull
+        private LocalTime endTime;
+        private Integer breakMinutes;
+        private String memo;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BatchCreateRequest {
+        @NotNull
+        private Long contractId;
+        @NotNull
+        private List<LocalDate> workDates;
         @NotNull
         private LocalTime startTime;
         @NotNull

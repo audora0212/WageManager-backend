@@ -42,4 +42,36 @@ public class UserDto {
         private String phone;
         private String profileImageUrl;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RegisterRequest {
+        private String kakaoId;
+        private String name;
+        private String phone;
+        private UserType userType;
+        private String profileImageUrl;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RegisterResponse {
+        private Long userId;
+        private String name;
+        private UserType userType;
+        private String workerCode; // WORKER인 경우에만 값이 있음
+
+        public static RegisterResponse from(User user, String workerCode) {
+            return RegisterResponse.builder()
+                    .userId(user.getId())
+                    .name(user.getName())
+                    .userType(user.getUserType())
+                    .workerCode(workerCode)
+                    .build();
+        }
+    }
 }
