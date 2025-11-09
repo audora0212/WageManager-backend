@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface WorkplaceRepository extends JpaRepository<Workplace, Long> {
     List<Workplace> findByEmployerId(Long employerId);
+    List<Workplace> findByEmployerIdAndIsActive(Long employerId, Boolean isActive);
 }

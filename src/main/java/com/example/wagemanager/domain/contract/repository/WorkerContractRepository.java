@@ -11,5 +11,7 @@ import java.util.Optional;
 public interface WorkerContractRepository extends JpaRepository<WorkerContract, Long> {
     List<WorkerContract> findByWorkerId(Long workerId);
     List<WorkerContract> findByWorkplaceId(Long workplaceId);
+    List<WorkerContract> findByWorkplaceIdAndIsActive(Long workplaceId, Boolean isActive);
     Optional<WorkerContract> findByWorkerIdAndWorkplaceId(Long workerId, Long workplaceId);
+    Integer countByWorkplaceIdAndIsActive(Long workplaceId, Boolean isActive);
 }

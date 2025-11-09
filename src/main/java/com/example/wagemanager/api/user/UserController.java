@@ -29,4 +29,10 @@ public class UserController {
             @RequestBody UserDto.UpdateRequest request) {
         return ApiResponse.success(userService.updateUser(userId, request));
     }
+
+    @PostMapping("/register")
+    public ApiResponse<UserDto.RegisterResponse> register(
+            @RequestBody UserDto.RegisterRequest request) {
+        return ApiResponse.success(userService.register(request));
+    }
 }
