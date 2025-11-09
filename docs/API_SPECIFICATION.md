@@ -49,7 +49,8 @@
 | **9. 근로자 - 정정요청** ||||||||
 | 9.1 | 요청 생성 | POST | `/api/worker/correction-requests` | 정정 요청 생성 | 대기 | 대기 | - | [링크](#91-요청-생성) |
 | 9.2 | 내 요청 목록 | GET | `/api/worker/correction-requests` | 내 정정 요청 목록 | 대기 | 대기 | - | [링크](#92-내-요청-목록) |
-| 9.3 | 요청 취소 | DELETE | `/api/worker/correction-requests/{id}` | 정정 요청 취소 | 대기 | 대기 | - | [링크](#93-요청-취소) |
+| 9.3 | 요청 상세 | GET | `/api/worker/correction-requests/{id}` | 내 정정 요청 상세 조회 | 대기 | 대기 | - | [링크](#93-요청-상세) |
+| 9.4 | 요청 취소 | DELETE | `/api/worker/correction-requests/{id}` | 정정 요청 취소 | 대기 | 대기 | - | [링크](#94-요청-취소) |
 | **10. 근로자 - 급여** ||||||||
 | 10.1 | 급여 목록 | GET | `/api/worker/salaries` | 연도별 급여 목록 | 대기 | 대기 | - | [링크](#101-급여-목록) |
 | 10.2 | 급여 상세 | GET | `/api/worker/salaries/{id}` | 급여 상세 정보 | 대기 | 대기 | - | [링크](#102-급여-상세) |
@@ -175,7 +176,10 @@
 ### 9.2 내 요청 목록
 **Response:** `{"success": true, "data": [{"id": 1, "status": "PENDING", ...}]}`
 
-### 9.3 요청 취소
+### 9.3 요청 상세
+**Response:** `{"success": true, "data": {"id": 1, "work_record_id": 1, "requested_end_time": "14:30", "reason": "손님이 많아서 30분 연장 근무했습니다", "status": "PENDING", ...}}`
+
+### 9.4 요청 취소
 **Response:** `{"success": true, "message": "정정 요청이 취소되었습니다."}`
 
 ### 10.1 급여 목록
@@ -223,3 +227,4 @@
 ## 변경 이력
 - v1.0 (2025-11-01): 초안 작성
 - v1.1 (2025-11-01): 하나의 통합 표로 정리, is_modified 필드 반영
+- v1.2 (2025-11-06): 근로자용 정정 요청 상세 조회 API 추가 (9.3)
