@@ -28,7 +28,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/health", "/h2-console/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
-                .anyRequest().authenticated()
+                // TODO: JWT 구현 완료 후 .authenticated()로 변경
+                .anyRequest().permitAll()  // 임시로 모든 요청 허용
             )
             .headers(headers -> headers
                 .frameOptions(frameOptions -> frameOptions.sameOrigin())
